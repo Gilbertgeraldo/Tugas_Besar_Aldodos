@@ -2,11 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"runtime"
-	"strings"
-	"time"
+	"math"
 )
 
 type admin struct {
@@ -29,39 +25,33 @@ type Pinjaman struct {
 
 var dataAdmin [3]admin
 var dataPeminjam [1000]Pinjaman
+var counterAdmin int = 0
+var counterPeminjam int = 0
 
 func ClearScreen() {
-	//clear screen ini digunakan untuk membersihkan output yang keluar di CLI,dengan clear screen kita bisa dapat lebih nyaman melihat CLI yang langsung bersih dan tidak ada sisa-sisa dari hasil execute code sebelumnya
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cls")
-	}else {
-		cmd = exec.Command("clear")
+	for i := 0; i < 30; i++ {
+		fmt.Println()
 	}
-	cmd.Stdout = os.Stdout
-	cmd.Run()
 }
 
 func menuAdmin(user string) {
-	now := time.Now() //fungsinya itu untuk menampilkan waktu real time pada CLI nanti...
-	a := strings.Repeat("-",15) //untuk header
-	fmt.Printf("TANGGAL: %s \n",now.Format("02-01-2006"))
-	fmt.Printf("JAM: %s \n",now.Format("15:04:05"))
-	fmt.Print(a)
+	fmt.Printf("TANGGAL: 19-04-2026 \n")
+	fmt.Println("-----------------------------------------------")
+	fmt.Println("============= ADMIN MENU ======================")
+	fmt.Println("	1.Lihat data nasabah	")
+	fmt.Println("	2.Lihat ajuan peminjaman	")
+	fmt.Println()
 }
 
 func menu(user string) {
-	now := time.Now()
-	sama := strings.Repeat("-",85) //untuk membuat sama dengan sebanyak 30 kali( --------------- )
-	fmt.Printf("TANGGAL: %s \n",now.Format("02-01-2006"))
-	fmt.Printf("JAM: %s \n",now.Format("15:04:05"))
-	fmt.Print(sama)
-	fmt.Printf("| Selamat datang, %-60s |\n",user)
-	fmt.Printf("| %-76s |\n","Apa yang bisa kami bantu hari ini ? ")
-	fmt.Print(sama)
+	fmt.Printf("TANGGAL: 19-04-2026 \n")
+	fmt.Println("================================================================================")
+	fmt.Printf("| Selamat datang, %-60s |\n", user)
+	fmt.Printf("| %-76s |\n", "Apa yang bisa kami bantu hari ini ? ")
+	fmt.Println("================================================================================")
 }
 
-//UNTUK MENDAFTARKAN ADMIN DENGAN MAKSIMAL ADMIN ADALAH 3
+// UNTUK MENDAFTARKAN ADMIN DENGAN MAKSIMAL ADMIN ADALAH 3
 func regisAdmin(data *[3]admin, i int) {
 	fmt.Println()
 	fmt.Printf("=%-10s Buat Akun =%-10s", " ", " ")
@@ -73,7 +63,7 @@ func regisAdmin(data *[3]admin, i int) {
 	fmt.Print("YEAYYY!DATA KAMU BERHASIL DIBUAT!!")
 }
 
-//CEK APAKAH ADMIN ADA ? 
+// CEK APAKAH ADMIN ADA ? 
 // func cekDataAdmin(usn string, pw string) bool {
 // 	for _,v := range dataAdmin {
 // 		if usn == v.Username && pw == v.Password {
@@ -92,46 +82,47 @@ func regisAdmin(data *[3]admin, i int) {
 // 	return false
 // }
 
-func loginAdmin()(string,bool) {
-	var username,password string
+func loginAdmin() (string, bool) {
+	var username, password string
 
 	fmt.Print("Username : ")
 	fmt.Scan(&username)
 	fmt.Print("Password : ")
 	fmt.Scan(&password)
 
-	for _,v := range dataAdmin {
+	for _, v := range dataAdmin {
 		if username == v.Username && password == v.Password {
 			fmt.Print("Password dan username anda benar!")
 			menu(v.Username)
 
-			return v.Username,true
+			return v.Username, true
 		}
 	}
-	return "username atau password kamu salah!",false
+	return "username atau password kamu salah!", false
 }
 
-func loginPeminjam() (string,bool) {
-	var username,password string
+func loginPeminjam() (string, bool) {
+	var username, password string
 
 	fmt.Print("Username : ")
 	fmt.Scan(&username)
 	fmt.Print("Password : ")
 	fmt.Scan(&password)
 
-	for _,v := range dataPeminjam {
+	for _, v := range dataPeminjam {
 		if username == v.Username && password == v.Password {
 			fmt.Print("Password anda benar!")
 			menu(v.Username)
-			return v.Username,true
+			return v.Username, true
 		}
 	}
-	return "username atau password anda salah!",false
+	return "username atau password anda salah!", false
 }
+
 func Register() {
 	ClearScreen()
 	var pilihan string
-	fmt.Println(strings.Repeat("-",5),"DAFTAR AKUN BARU",strings.Repeat("-",5))
+	fmt.Println("--------- DAFTAR AKUN BARU ---------")
 	fmt.Println("1.Daftar Sebagai admin")
 	fmt.Println("2.Register sebagai peminjam")
 	fmt.Scan(&pilihan)
@@ -139,53 +130,54 @@ func Register() {
 	var usn string
 	fmt.Print("Harap masukan username anda : ")
 	fmt.Scan(&usn)
-				
+
 	switch pilihan {
 	case "1":
 		found := false
-		for _,v := range dataAdmin {
+		for _, v := range dataAdmin {
 			if v.Username == usn {
-				found = true 
+				found = true
 				break
 			}
 		}
 
 		if found {
-			fmt.Printf("\nUsername : %s sudah terdaftar!!",usn)
-			time.Sleep(2 * time.Second)
-			loginAdmin() //ini tuh langsung mengalihkan ke login admin ketika admin ternyata sudah permah mendaftar sebelumnya
-		}else {
+			fmt.Printf("\nUsername : %s sudah terdaftar!!", usn)
+			loginAdmin()
+		} else {
 			var pw string
 			fmt.Print("Harap masukan password anda : ")
 			fmt.Scan(&pw)
-			dataAdmin = append(dataAdmin,admin{Username: usn,Password: pw})
+			dataAdmin[counterAdmin] = admin{Username: usn, Password: pw}
+			counterAdmin++
 			fmt.Println("registrasi admin berhasil")
 		}
 
 	case "2":
 		found := false
-		for _,v := range dataPeminjam {
+		for _, v := range dataPeminjam {
 			if v.Nama == usn {
 				found = true
 				break
 			}
 		}
 		if found {
-			fmt.Print("\nUsername : %s sudah terdaftar!!",usn)
-			time.Sleep(2 * time.Second)
+			fmt.Printf("\nUsername : %s sudah terdaftar!!", usn)
 			loginPeminjam()
-		}else {
-			nasabahBaru := Pinjaman {
-				Nama : usn,
-				Status : "Calon Peminjam",
-				//Masih mikir wkwkkwk
+		} else {
+			nasabahBaru := Pinjaman{
+				Nama:   usn,
+				Status: "Calon Peminjam",
+				// Masih mikir wkwkkwk
 			}
-			dataAdmin = append(dataAdmin,nasabahBaru)
+			dataPeminjam[counterPeminjam] = nasabahBaru
+			counterPeminjam++
 			fmt.Println("Registrasi peminjaman berhasil")
 		}
 	}
 }
 
 func main() {
-
+	fmt.Println("Program Sistem Pinjaman")
+	// Tambahkan logika utama di sini
 }
