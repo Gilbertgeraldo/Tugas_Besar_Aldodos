@@ -374,5 +374,4 @@ func ubahPeminjam() {
 
 func main() {
 	fmt.Println("Program Sistem Pinjaman")
-	// Tambahkan logika utama di sini
 }
